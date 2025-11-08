@@ -21,6 +21,8 @@ import { s3Storage } from '@payloadcms/storage-s3'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const isBuild = process.env.BUILD === 'true'
+
 export default buildConfig({
   admin: {
     components: {
@@ -61,7 +63,10 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI || '',
+    url:
+      isBuild || process.env.NODE_ENV === 'development'
+        ? process.env.BUILD_DATABASE || ''
+        : process.env.DATABASE_URI || '',
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
